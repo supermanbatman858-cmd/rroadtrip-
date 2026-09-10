@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sentier — Programme Voyage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE6D2;
+    --card:#FBF7EC;
+    --ink:#23291F;
+    --ink-soft:#5B6156;
+    --pine:#2F4A3C;
+    --pine-light:#4A6B57;
+    --rust:#B5502E;
+    --rust-soft:#D98A5F;
+    --line:#D8CBA8;
+    --ok:#3E7C56;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html,body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand,.tab,.chip,.btn,.exname{font-family:'Space Grotesk',sans-serif;}
+  .shell{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    background:var(--paper);
+  }
+  /* header */
+  header{
+    padding:22px 20px 14px;
+    position:relative;
+  }
+  .brand{
+    font-size:22px;
+    font-weight:700;
+    color:var(--pine);
+    letter-spacing:-0.01em;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .brand small{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-weight:500;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+
+  /* person switch */
+  .switcher{
+    display:flex;
+    gap:6px;
+    margin:16px 20px 0;
+    background:var(--line);
+    padding:4px;
+    border-radius:12px;
+  }
+  .switcher button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:9px 6px;
+    border-radius:9px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .switcher button.active{
+    background:var(--pine);
+    color:#fff;
+  }
+  .rename-row{
+    margin:8px 20px 0;
+    display:flex;
+    justify-content:flex-end;
+  }
+  .rename-row button{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    font-size:12px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:2px;
+  }
+  .rename-edit{
+    margin:10px 20px 0;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px;
+  }
+  .rename-field{margin-bottom:8px;}
+  .rename-field label{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+  .rename-field input{
+    width:100%;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:8px 10px;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    background:#fff;
+  }
+  .rename-field input:focus{outline:none; border-color:var(--pine);}
+  .rename-done{
+    width:100%;
+    margin-top:2px;
+    border:none;
+    background:var(--pine);
+    color:#fff;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:9px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+
+  /* trail progress */
+  .trail-wrap{
+    margin:18px 20px 4px;
+  }
+  .trail-label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .trail-label strong{color:var(--pine); font-weight:600;}
+  svg.trail{width:100%; height:56px; display:block;}
+
+  /* week/session chips */
+  .selector-block{
+    margin:12px 20px 0;
+  }
+  .selector-title{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:7px;
+  }
+  .chips{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .chip{
+    flex:0 0 auto;
+    padding:8px 14px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .chip.active{
+    background:var(--pine);
+    border-color:var(--pine);
+    color:#fff;
+  }
+  .chip.done::after{
+    content:" ✓";
+    color:var(--ok);
+  }
+  .chip.active.done::after{color:#cfe9d8;}
+
+  /* week note */
+  .week-note{
+    margin:16px 20px 0;
+    padding:12px 14px;
+    background:rgba(181,80,46,0.08);
+    border-left:3px solid var(--rust);
+    border-radius:8px;
+    font-size:13px;
+    line-height:1.5;
+    color:var(--ink);
+  }
+  .week-note b{color:var(--rust);}
+
+  /* program version */
+  .prog-row{
+    margin:14px 20px 0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .prog-name{
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .prog-name b{color:var(--ink);}
+  .swap-btn{
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--pine);
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+
+  /* exercise list */
+  main{flex:1; padding:16px 20px 100px;}
+  .exercise{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 14px 12px;
+    margin-bottom:12px;
+  }
+  .exercise.complete{border-color:var(--ok);}
+  .ex-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .exname{
+    font-size:15px;
+    font-weight:600;
+    color:var(--ink);
+    line-height:1.3;
+  }
+  .extarget{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+  .excue{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:6px;
+    line-height:1.45;
+    font-style:italic;
+  }
+  .done-toggle{
+    flex:0 0 auto;
+    width:26px;height:26px;
+    border-radius:50%;
+    border:1.5px solid var(--line);
+    background:#fff;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+    color:transparent;
+  }
+  .done-toggle.on{
+    background:var(--ok);
+    border-color:var(--ok);
+    color:#fff;
+  }
+  .band-row{
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+  }
+  .band-btn{
+    flex:1;
+    padding:6px 4px;
+    border-radius:7px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+    text-align:center;
+  }
+  .band-btn.active{
+    background:var(--rust);
+    border-color:var(--rust);
+    color:#fff;
+  }
+  .sets-row{
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+  }
+  .set-field{
+    flex:1;
+    text-align:center;
+  }
+  .set-field label{
+    display:block;
+    font-size:10px;
+    color:var(--ink-soft);
+    margin-bottom:3px;
+  }
+  .set-field input{
+    width:100%;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    padding:7px 2px;
+    text-align:center;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .set-field input:focus{outline:none; border-color:var(--pine);}
+
+  /* footer nav */
+  nav.tabbar{
+    position:sticky;
+    bottom:0;
+    left:0;right:0;
+    background:var(--card);
+    border-top:1px solid var(--line);
+    display:flex;
+    padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+    max-width:480px;
+    margin:0 auto;
+    width:100%;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:6px 4px;
+    border:none;
+    background:none;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tab.active{color:var(--pine);}
+  .tab .dot{
+    display:block;
+    width:5px;height:5px;
+    border-radius:50%;
+    background:var(--pine);
+    margin:0 auto 4px;
+    opacity:0;
+  }
+  .tab.active .dot{opacity:1;}
+
+  /* history view */
+  .hist-item{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    font-size:13px;
+  }
+  .hist-item .hd{
+    display:flex;
+    justify-content:space-between;
+    font-weight:600;
+    color:var(--pine);
+    margin-bottom:4px;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .hist-item .stat{color:var(--ink-soft); font-size:12px;}
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:40px 20px;
+    line-height:1.6;
+  }
+
+  ::-webkit-scrollbar{display:none;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="brand">Sentier <small>programme voyage · élastiques</small></div>
+  </header>
+
+  <div class="switcher" id="switcher"></div>
+  <div class="rename-edit" id="renameEdit" style="display:none;"></div>
+  <div class="rename-row"><button id="renameBtn">renommer les profils</button></div>
+
+  <div class="trail-wrap">
+    <div class="trail-label"><span>Progression du séjour</span><strong id="trailCount">0 / 9 séances</strong></div>
+    <svg class="trail" id="trailSvg" viewBox="0 0 440 56" preserveAspectRatio="none"></svg>
+  </div>
+
+  <div id="logView">
+    <div class="selector-block">
+      <div class="selector-title">Semaine</div>
+      <div class="chips" id="weekChips"></div>
+    </div>
+    <div class="selector-block">
+      <div class="selector-title">Séance</div>
+      <div class="chips" id="dayChips"></div>
+    </div>
+
+    <div class="week-note" id="weekNote"></div>
+
+    <div class="prog-row">
+      <div class="prog-name">Version : <b id="progLabel"></b></div>
+      <button class="swap-btn" id="swapBtn">changer</button>
+    </div>
+
+    <main id="exerciseList"></main>
+  </div>
+
+  <div id="histView" style="display:none;">
+    <main id="histList"></main>
+  </div>
+
+  <nav class="tabbar">
+    <button class="tab active" data-view="log"><span class="dot"></span>Séance</button>
+    <button class="tab" data-view="hist"><span class="dot"></span>Historique</button>
+  </nav>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const PROGRAMS = {
+  A: {
+    label: "Fessier / Dos",
+    exercises: [
+      {name:"Squat élastique", sets:3, reps:"12-15", rir:"1", cue:"Élastique sous les pieds, tenu aux épaules. Tempo 3s à la descente."},
+      {name:"Fentes arrière élastiques", sets:3, reps:"10-12/jambe", rir:"1", cue:"Buste légèrement penché en avant pour charger le fessier."},
+      {name:"Pont fessier unilatéral élastique", sets:3, reps:"12-15/jambe", rir:"0-1", cue:"Contraction 1-2s en haut, tempo lent."},
+      {name:"Rowing élastique (prise large)", sets:3, reps:"12-15", rir:"1", cue:"Coudes écartés — cible le dos largeur."},
+      {name:"Rowing élastique unilatéral", sets:3, reps:"12-15/bras", rir:"1", cue:"Coude au corps — cible le dos épaisseur."},
+      {name:"Pull-apart élastique", sets:2, reps:"15-20", rir:"0", cue:"Bras tendus, écarter l'élastique devant soi — deltoïde postérieur / rhomboïdes."},
+      {name:"Développé élastique ou pompes", sets:2, reps:"12-15", rir:"1", cue:"Ancrage derrière soi, ou pompes classiques si pas d'ancrage."},
+      {name:"Curl + extension triceps (superset)", sets:2, reps:"12-15", rir:"0", cue:"Enchaîner les deux sans repos entre."},
+      {name:"Gainage / Pallof press élastique", sets:2, reps:"30-45s / 10-12 par côté", rir:"—", cue:"Anti-rotation, respiration continue."}
+    ]
+  },
+  B: {
+    label: "Pecs / Bras",
+    exercises: [
+      {name:"Squat élastique", sets:2, reps:"12-15", rir:"1", cue:"Élastique sous les pieds, tenu aux épaules."},
+      {name:"Fentes élastiques", sets:2, reps:"10-12/jambe", rir:"1", cue:"Pas et amplitude contrôlés."},
+      {name:"Développé élastique (ancrage bas)", sets:3, reps:"12-15", rir:"1", cue:"Ancrage bas, trajectoire vers le haut — haut des pecs."},
+      {name:"Écarté élastique / pompes lestées", sets:3, reps:"12-15", rir:"1", cue:"Adduction horizontale, coude légèrement fléchi."},
+      {name:"Rowing élastique", sets:2, reps:"12-15", rir:"1", cue:"Squeeze omoplates 1-2s en fin de mouvement."},
+      {name:"Curl biceps élastique", sets:3, reps:"12-15", rir:"0-1", cue:"Coudes fixes, pas d'élan."},
+      {name:"Extension triceps élastique (au-dessus de la tête)", sets:3, reps:"12-15", rir:"0-1", cue:"Coudes hauts et fixes tout du long."},
+      {name:"Élévations latérales élastique", sets:2, reps:"15-20", rir:"0", cue:"Tempo lent, amplitude jusqu'aux épaules."},
+      {name:"Gainage / Pallof press élastique", sets:2, reps:"30-45s / 10-12 par côté", rir:"—", cue:"Anti-rotation, respiration continue."}
+    ]
+  }
+};
+
+const WEEK_NOTES = {
+  1: "<b>Semaine 1 — Technique.</b> RIR 1-2 sur tous les mouvements. Priorité à l'exécution et au choix du bon élastique avant de chercher l'intensité.",
+  2: "<b>Semaine 2 — Intensité.</b> RIR 0-1. Ajoute un dropset (passe à l'élastique plus faible) sur la dernière série d'un exercice de ton choix par séance.",
+  3: "<b>Semaine 3 — Rest-pause.</b> RIR 0-1. Sur les gros mouvements (squat, rowing, développé) : à l'échec, pause 10-15s puis 3-5 reps supplémentaires."
+};
+
+const BANDS = [
+  {id:"b1", label:"Élastique 1 — léger"},
+  {id:"b2", label:"Élastique 2 — moyen"},
+  {id:"b3", label:"Élastique 3 — fort"}
+];
+
+/* ---------- State / storage ---------- */
+const STORE_KEY = "sentier-voyage-data";
+
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {
+    profiles: [
+      {id:"p1", name:"Moi", program:"A", logs:{}},
+      {id:"p2", name:"Ma compagne", program:"B", logs:{}}
+    ],
+    activeProfile:"p1",
+    activeWeek:1,
+    activeDay:1,
+    view:"log"
+  };
+}
+function saveStore(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+}
+
+let state = loadStore();
+
+function currentProfile(){
+  return state.profiles.find(p => p.id === state.activeProfile);
+}
+function logKey(week, day){ return "S"+week+"-J"+day; }
+function currentLog(){
+  const p = currentProfile();
+  const k = logKey(state.activeWeek, state.activeDay);
+  if(!p.logs[k]) p.logs[k] = {};
+  return p.logs[k];
+}
+function isDayComplete(profile, week, day){
+  const k = logKey(week, day);
+  const log = profile.logs[k];
+  if(!log) return false;
+  const prog = PROGRAMS[profile.program];
+  return prog.exercises.every((ex,i) => log[i] && log[i].done);
+}
+
+/* ---------- Render ---------- */
+function render(){
+  renderSwitcher();
+  renderTrail();
+  if(state.view === "log"){
+    document.getElementById("logView").style.display = "";
+    document.getElementById("histView").style.display = "none";
+    renderChips();
+    renderWeekNote();
+    renderProgRow();
+    renderExercises();
+  } else {
+    document.getElementById("logView").style.display = "none";
+    document.getElementById("histView").style.display = "";
+    renderHistory();
+  }
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.classList.toggle("active", t.dataset.view === state.view);
+  });
+  saveStore();
+}
+
+function renderSwitcher(){
+  const el = document.getElementById("switcher");
+  el.innerHTML = "";
+  state.profiles.forEach(p=>{
+    const b = document.createElement("button");
+    b.textContent = p.name;
+    b.className = p.id === state.activeProfile ? "active" : "";
+    b.onclick = () => { state.activeProfile = p.id; render(); };
+    el.appendChild(b);
+  });
+}
+
+function renderTrail(){
+  const p = currentProfile();
+  let done = 0;
+  const pts = [];
+  let idx = 0;
+  for(let w=1; w<=3; w++){
+    for(let d=1; d<=3; d++){
+      idx++;
+      const complete = isDayComplete(p, w, d);
+      if(complete) done++;
+      const x = 20 + (idx-1) * ((440-40)/8);
+      const y = idx % 2 === 0 ? 18 : 38;
+      pts.push({x,y,complete, isCurrent: (w===state.activeWeek && d===state.activeDay)});
+    }
+  }
+  document.getElementById("trailCount").textContent = done + " / 9 séances";
+
+  const pathD = "M " + pts.map(pt => pt.x+","+pt.y).join(" L ");
+  let svg = `<path d="${pathD}" fill="none" stroke="#D8CBA8" stroke-width="2"/>`;
+  const doneCount = pts.filter(p=>p.complete).length;
+  if(doneCount > 0){
+    const donePts = pts.slice(0, findLastDoneRun(pts));
+  }
+  // draw completed segment in rust up through consecutive completed from start
+  let lastDoneIdx = -1;
+  for(let i=0;i<pts.length;i++){ if(pts[i].complete) lastDoneIdx = i; else break; }
+  if(lastDoneIdx >= 0){
+    const seg = pts.slice(0, lastDoneIdx+1);
+    const segD = "M " + seg.map(pt => pt.x+","+pt.y).join(" L ");
+    svg += `<path d="${segD}" fill="none" stroke="#B5502E" stroke-width="2.5"/>`;
+  }
+  pts.forEach(pt=>{
+    const fill = pt.complete ? "#B5502E" : "#FBF7EC";
+    const stroke = pt.isCurrent ? "#2F4A3C" : "#D8CBA8";
+    const r = pt.isCurrent ? 6 : 5;
+    svg += `<circle cx="${pt.x}" cy="${pt.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${pt.isCurrent?2.5:1.5}"/>`;
+  });
+  document.getElementById("trailSvg").innerHTML = svg;
+}
+function findLastDoneRun(pts){ return 0; }
+
+function renderChips(){
+  const wc = document.getElementById("weekChips");
+  wc.innerHTML = "";
+  for(let w=1; w<=3; w++){
+    const b = document.createElement("button");
+    b.className = "chip" + (state.activeWeek===w ? " active":"");
+    b.textContent = "Semaine "+w;
+    b.onclick = () => { state.activeWeek = w; render(); };
+    wc.appendChild(b);
+  }
+  const dc = document.getElementById("dayChips");
+  dc.innerHTML = "";
+  const p = currentProfile();
+  for(let d=1; d<=3; d++){
+    const b = document.createElement("button");
+    const complete = isDayComplete(p, state.activeWeek, d);
+    b.className = "chip" + (state.activeDay===d ? " active":"") + (complete ? " done":"");
+    b.textContent = "Séance "+d;
+    b.onclick = () => { state.activeDay = d; render(); };
+    dc.appendChild(b);
+  }
+}
+
+function renderWeekNote(){
+  document.getElementById("weekNote").innerHTML = WEEK_NOTES[state.activeWeek];
+}
+
+function renderProgRow(){
+  const p = currentProfile();
+  document.getElementById("progLabel").textContent = PROGRAMS[p.program].label;
+  document.getElementById("swapBtn").onclick = () => {
+    p.program = p.program === "A" ? "B" : "A";
+    render();
+  };
+}
+
+function renderExercises(){
+  const p = currentProfile();
+  const prog = PROGRAMS[p.program];
+  const log = currentLog();
+  const list = document.getElementById("exerciseList");
+  list.innerHTML = "";
+
+  prog.exercises.forEach((ex, i) => {
+    if(!log[i]) log[i] = {band:null, sets:Array(ex.sets).fill(""), done:false};
+    const entry = log[i];
+
+    const card = document.createElement("div");
+    card.className = "exercise" + (entry.done ? " complete" : "");
+
+    const top = document.createElement("div");
+    top.className = "ex-top";
+    top.innerHTML = `
+      <div>
+        <div class="exname">${ex.name}</div>
+        <div class="extarget">${ex.sets} × ${ex.reps} — RIR ${ex.rir}</div>
+        <div class="excue">${ex.cue}</div>
+      </div>
+    `;
+    const toggle = document.createElement("button");
+    toggle.className = "done-toggle" + (entry.done ? " on" : "");
+    toggle.textContent = "✓";
+    toggle.onclick = () => { entry.done = !entry.done; render(); };
+    top.appendChild(toggle);
+    card.appendChild(top);
+
+    const bandRow = document.createElement("div");
+    bandRow.className = "band-row";
+    BANDS.forEach(b => {
+      const bb = document.createElement("button");
+      bb.className = "band-btn" + (entry.band===b.id ? " active":"");
+      bb.textContent = b.label.replace("Élastique ","#");
+      bb.onclick = () => { entry.band = b.id; render(); };
+      bandRow.appendChild(bb);
+    });
+    card.appendChild(bandRow);
+
+    const setsRow = document.createElement("div");
+    setsRow.className = "sets-row";
+    for(let s=0; s<ex.sets; s++){
+      const field = document.createElement("div");
+      field.className = "set-field";
+      field.innerHTML = `<label>Série ${s+1}</label>`;
+      const input = document.createElement("input");
+      input.type = "number";
+      input.inputMode = "numeric";
+      input.placeholder = "reps";
+      input.value = entry.sets[s] || "";
+      input.oninput = (e) => { entry.sets[s] = e.target.value; saveStore(); };
+      field.appendChild(input);
+      setsRow.appendChild(field);
+    }
+    card.appendChild(setsRow);
+
+    list.appendChild(card);
+  });
+}
+
+function renderHistory(){
+  const p = currentProfile();
+  const el = document.getElementById("histList");
+  el.innerHTML = "";
+  const keys = [];
+  for(let w=1; w<=3; w++) for(let d=1; d<=3; d++) keys.push({w,d,k:logKey(w,d)});
+
+  const withData = keys.filter(({k}) => p.logs[k] && Object.keys(p.logs[k]).length);
+  if(withData.length === 0){
+    el.innerHTML = `<div class="empty">Aucune séance enregistrée pour ${p.name} pour l'instant.<br>Commence par l'onglet Séance.</div>`;
+    return;
+  }
+  withData.reverse().forEach(({w,d,k}) => {
+    const log = p.logs[k];
+    const prog = PROGRAMS[p.program];
+    const doneCount = Object.values(log).filter(e => e.done).length;
+    const item = document.createElement("div");
+    item.className = "hist-item";
+    item.innerHTML = `<div class="hd"><span>Semaine ${w} · Séance ${d}</span><span>${doneCount}/${prog.exercises.length}</span></div>`;
+    prog.exercises.forEach((ex,i) => {
+      const e = log[i];
+      if(!e || (!e.sets.some(v=>v) && !e.done)) return;
+      const bandLabel = e.band ? BANDS.find(b=>b.id===e.band).label.replace("Élastique ","#") : "—";
+      const reps = e.sets.filter(v=>v).join(" / ") || "—";
+      const row = document.createElement("div");
+      row.className = "stat";
+      row.textContent = `${ex.name} — ${reps} reps (${bandLabel})`;
+      item.appendChild(row);
+    });
+    el.appendChild(item);
+  });
+}
+
+/* ---------- Events ---------- */
+document.querySelectorAll(".tab").forEach(t => {
+  t.onclick = () => { state.view = t.dataset.view; render(); };
+});
+
+let renaming = false;
+document.getElementById("renameBtn").onclick = () => {
+  renaming = !renaming;
+  renderRename();
+};
+function renderRename(){
+  const box = document.getElementById("renameEdit");
+  const btn = document.getElementById("renameBtn");
+  if(!renaming){
+    box.style.display = "none";
+    box.innerHTML = "";
+    btn.textContent = "renommer les profils";
+    return;
+  }
+  btn.textContent = "fermer";
+  box.style.display = "";
+  box.innerHTML = "";
+  state.profiles.forEach(p => {
+    const field = document.createElement("div");
+    field.className = "rename-field";
+    field.innerHTML = `<label>Nom du profil</label>`;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = p.name;
+    input.oninput = (e) => { p.name = e.target.value; };
+    field.appendChild(input);
+    box.appendChild(field);
+  });
+  const done = document.createElement("button");
+  done.className = "rename-done";
+  done.textContent = "Valider";
+  done.onclick = () => {
+    state.profiles.forEach(p => { if(!p.name.trim()) p.name = "Profil"; });
+    renaming = false;
+    render();
+    renderRename();
+  };
+  box.appendChild(done);
+}
+
+render();
+</script>
+</body>
+</html>
